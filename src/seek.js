@@ -1,10 +1,12 @@
 const { core, overlay, console, event, input, menu } = iina;
 
-const TIMEOUT = 150;
+const MOUSE_DELAY = 500;
+const KEYBOARD_DELAY = 150;
 
 const SEEK_SPEED = 2;
 
 const KEYBOARD_SHORTCUT = "s";
+const SHOW_OVERLAY = true;
 
 const IDLE = 0;
 const WAITING = 1;
@@ -12,6 +14,8 @@ const SEEKING = 2;
 
 export class SeekModule {
   status = IDLE;
+  seekInput = 0;
+  seekTimeoutID = 0;
 
   constructor() {
     event.on("iina.window-loaded", () => {
@@ -37,7 +41,7 @@ export class SeekModule {
     input.onMouseDown(input.MOUSE, (e) => {
       console.log("Mouse Down");
 
-      this.#initSeek(e.x, e.y);
+      this.#startSeek(input.MOUSE, MOUSE_DELAY, e.x, e.y);
     });
   }
 
@@ -45,7 +49,7 @@ export class SeekModule {
     input.onMouseUp(input.MOUSE, () => {
       console.log("Mouse Up");
 
-      this.#cancelSeek();
+      this.#cancelSeek(input.MOUSE);
     });
   }
 
@@ -53,7 +57,7 @@ export class SeekModule {
     input.onMouseDrag(input.MOUSE, () => {
       console.log("Mouse Drag");
 
-      this.#cancelSeek();
+      this.#cancelSeek(input.MOUSE);
     });
   }
 
@@ -61,7 +65,7 @@ export class SeekModule {
     input.onKeyDown(KEYBOARD_SHORTCUT, () => {
       console.log("Key Down");
 
-      this.#initSeek();
+      this.#startSeek(KEYBOARD_SHORTCUT, KEYBOARD_DELAY);
       input.onKeyDown(KEYBOARD_SHORTCUT, () => { return true; });
     })
   }
@@ -70,52 +74,53 @@ export class SeekModule {
     input.onKeyUp(KEYBOARD_SHORTCUT, () => {
       console.log("Key Up");
 
-      this.#cancelSeek();
+      this.#cancelSeek(KEYBOARD_SHORTCUT);
       this.#bindKeyDown();
     })
   }
 
-
-  #initSeek(x,y) {
+  #startSeek(input, delay, x,y) {
     // only start seeking if the player is not paused
     if (core.status.paused) {
       return;
     }
+    if (this.status !== IDLE) {
+      return;
+    }
 
     this.status = WAITING;
+    this.seekInput = input;
 
     // show the overlay after a timeout.
-    setTimeout(() => {
+    this.seekTimeoutID = setTimeout(() => {
       // if the window is acturally dragged, cancel the seek
       if (this.status !== WAITING) {
         return;
       }
 
+      console.log("Start Seek");
       this.status = SEEKING;
+      this.originalSpeed = core.status.speed;
+      core.setSpeed(SEEK_SPEED);
 
-      overlay.show();
-      overlay.postMessage("showIndicator", { x, y });
-
-      this.#startSeek();
-    }, TIMEOUT);
+      if (SHOW_OVERLAY) {
+        overlay.show();
+        overlay.postMessage("showIndicator", { x, y });
+      }
+    }, delay);
   }
 
-  #startSeek() {
-    console.log("Start Seek");
-
-    this.originalSpeed = core.status.speed;
-
-    core.setSpeed(SEEK_SPEED);
-  }
-
-  #cancelSeek() {
+  #cancelSeek(input) {
     console.log("Cancel Seek");
 
-    if (this.status === IDLE) {
+    if (this.status === IDLE || this.seekInput !== input) {
       return;
     }
     if (this.status === SEEKING) {
       core.setSpeed(this.originalSpeed);
+    }
+    if (this.status === WAITING) {
+      clearTimeout(this.seekTimeoutID);
     }
     this.status = IDLE;
     overlay.hide();

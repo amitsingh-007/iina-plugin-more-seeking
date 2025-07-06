@@ -11,9 +11,9 @@ iina.onMessage("showIndicator", (e) => {
     seekIndicator.style.top = ""; // Reset
     seekIndicator.style.transform = "translate(-50%, 50%)";
   } else {
-    seekIndicator.style.left = "50%";
+    seekIndicator.style.left = "100%";
     seekIndicator.style.top = "50%";
     seekIndicator.style.bottom = ""; // Reset
-    seekIndicator.style.transform = "translate(-50%, -50%)";
+    seekIndicator.style.transform = "translate(-100%, -50%)";
   }
 });
