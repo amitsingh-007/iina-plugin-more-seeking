@@ -12,6 +12,9 @@ const IDLE = 0;
 const WAITING = 1;
 const SEEKING = 2;
 
+const INPUT_MOUSE = 0;
+const INPUT_KEYBOARD = 1;
+
 export class SeekModule {
   status = IDLE;
   seekInput = 0;
@@ -41,7 +44,7 @@ export class SeekModule {
     input.onMouseDown(input.MOUSE, (e) => {
       console.log("Mouse Down");
 
-      this.#startSeek(input.MOUSE, MOUSE_DELAY, e.x, e.y);
+      this.#startSeek(INPUT_MOUSE, MOUSE_DELAY, e.x, e.y);
     });
   }
 
@@ -49,7 +52,7 @@ export class SeekModule {
     input.onMouseUp(input.MOUSE, () => {
       console.log("Mouse Up");
 
-      this.#cancelSeek(input.MOUSE);
+      this.#cancelSeek(INPUT_MOUSE);
     });
   }
 
@@ -57,7 +60,7 @@ export class SeekModule {
     input.onMouseDrag(input.MOUSE, () => {
       console.log("Mouse Drag");
 
-      this.#cancelSeek(input.MOUSE);
+      this.#cancelSeek(INPUT_MOUSE);
     });
   }
 
@@ -65,18 +68,25 @@ export class SeekModule {
     input.onKeyDown(KEYBOARD_SHORTCUT, () => {
       console.log("Key Down");
 
-      this.#startSeek(KEYBOARD_SHORTCUT, KEYBOARD_DELAY);
+      if (this.status !== IDLE) {
+        this.#cancelSeek(INPUT_KEYBOARD);
+        return;
+      }
+
+      this.#startSeek(INPUT_KEYBOARD, KEYBOARD_DELAY);
       input.onKeyDown(KEYBOARD_SHORTCUT, () => { return true; });
-    })
+    });
   }
 
   #bindKeyUp() {
     input.onKeyUp(KEYBOARD_SHORTCUT, () => {
       console.log("Key Up");
 
-      this.#cancelSeek(KEYBOARD_SHORTCUT);
+      if (this.status !== WAITING) {
+        this.#cancelSeek(INPUT_KEYBOARD);
+      }
       this.#bindKeyDown();
-    })
+    });
   }
 
   #startSeek(input, delay, x,y) {
