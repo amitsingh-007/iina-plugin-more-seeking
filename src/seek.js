@@ -65,13 +65,15 @@ export class SeekModule {
   }
 
   #bindKeyDown() {
-    input.onKeyDown(KEYBOARD_SHORTCUT, () => {
+    input.onKeyDown(KEYBOARD_SHORTCUT, (data) => {
       console.log("Key Down");
 
-      if (this.status === IDLE) {
-        this.#startSeek(INPUT_KEYBOARD, KEYBOARD_DELAY);
-      } else if (this.status !== IDLE) {
-        this.#cancelSeek(INPUT_KEYBOARD);
+      if (!data.isRepeat) {
+        if (this.status === IDLE) {
+          this.#startSeek(INPUT_KEYBOARD, KEYBOARD_DELAY);
+        } else if (this.status !== IDLE) {
+          this.#cancelSeek(INPUT_KEYBOARD);
+        }
       }
 
       return true;
