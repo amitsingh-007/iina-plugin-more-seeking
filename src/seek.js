@@ -68,13 +68,13 @@ export class SeekModule {
     input.onKeyDown(KEYBOARD_SHORTCUT, () => {
       console.log("Key Down");
 
-      if (this.status !== IDLE) {
+      if (this.status === IDLE) {
+        this.#startSeek(INPUT_KEYBOARD, KEYBOARD_DELAY);
+      } else if (this.status !== IDLE) {
         this.#cancelSeek(INPUT_KEYBOARD);
-        return;
       }
 
-      this.#startSeek(INPUT_KEYBOARD, KEYBOARD_DELAY);
-      input.onKeyDown(KEYBOARD_SHORTCUT, () => { return true; });
+      return true;
     });
   }
 
@@ -85,7 +85,6 @@ export class SeekModule {
       if (this.status !== WAITING) {
         this.#cancelSeek(INPUT_KEYBOARD);
       }
-      this.#bindKeyDown();
     });
   }
 
