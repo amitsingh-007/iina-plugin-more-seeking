@@ -31,8 +31,8 @@ jobs:
         id: create_release
         uses: ncipollo/release-action@v1
         with:
-          tag: ${{ github.sha }}
-          name: Release ${{ github.sha }}
+          tag: "v${{ github.sha }}"
+          name: "Release v${{ github.sha }}"
           body: "Automated release from GitHub Actions."
 
       - name: Upload Release Asset
