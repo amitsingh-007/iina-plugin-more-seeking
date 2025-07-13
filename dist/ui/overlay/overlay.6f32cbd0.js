@@ -1,0 +1,2 @@
+console.log(window.iina),iina.onMessage("showIndicator",t=>{let e=document.getElementById("seek-indicator");t&&"number"==typeof t.x&&"number"==typeof t.y?(e.style.left=`${t.x}px`,e.style.bottom=`${t.y}px`,e.style.top="",e.style.transform="translate(-50%, 50%)"):(e.style.left="100%",e.style.top="50%",e.style.bottom="",e.style.transform="translate(-100%, -50%)")});
+//# sourceMappingURL=overlay.6f32cbd0.js.map
