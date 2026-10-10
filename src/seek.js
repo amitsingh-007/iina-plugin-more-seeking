@@ -5,7 +5,7 @@ const KEYBOARD_DELAY = 150;
 
 const SEEK_SPEED = 2;
 
-const KEYBOARD_SHORTCUT = "s";
+const KEYBOARD_SHORTCUT = "'";
 const SHOW_OVERLAY = true;
 
 const IDLE = 0;
